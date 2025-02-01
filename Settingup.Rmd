@@ -1,0 +1,11 @@
+---
+title: "Set Up"
+author: "Lynn Li"
+date: "2025-02-01"
+output: html_document
+---
+
+```{r}
+print('hello world!'):
+```
+
