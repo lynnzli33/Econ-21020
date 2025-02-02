@@ -1,0 +1,136 @@
+---
+title: "HW 3"
+author: "Lynn Li"
+date: "2025-02-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+file <- "/Users/lynnli/Econometrics/caschool.xlsx"
+dat <- read_excel(file)
+```
+6a:  
+There are 420 observations in the dataset.  
+
+6b:
+```{r}
+dat$income <- dat$avginc*1000
+```
+b i:  
+The variable income measures the average district income in dollars.  
+  
+b ii:
+```{r}
+mean_avginc <- mean(dat$avginc)
+sd_avginc <- sd(dat$avginc)
+
+print(mean_avginc)
+print(sd_avginc)
+```
+
+```{r}
+mean_inc <- mean(dat$income)
+sd_inc <- sd(dat$income)
+
+print(mean_inc)
+print(sd_inc)
+```
+iii, The mean and sd are just 1000 times the value of avginc, which makes sense because the data of income are scaled by 1000 from the avginc column. 
+
+ci: 
+```{r}
+mean_math <- mean(dat$math_scr)
+print(mean_math)
+```
+The mean math score across all district is 653.3426.
+
+cii:
+```{r}
+small_class <- sum(dat$str <= 20)
+num_dis <- nrow(dat)
+fraction_small <- small_class/num_dis
+print(fraction_small)
+
+total_math<- 0
+for(i in 1:nrow(dat)){
+  if (dat$str[i] <=20){
+  total_math <- total_math + dat$math_scr[i]
+  }
+}
+small_math_avg <- total_math/small_class
+print(small_math_avg)
+```
+57.86% of disctricts have an average class size of 20 or fewer student. The mean math score across these districts is 655.72.
+
+ciii:
+```{r}
+big_class <- sum(dat$str > 20)
+fraction_big <- big_class/num_dis
+print(fraction_big)
+
+total_math<- 0
+for(i in 1:nrow(dat)){
+  if (dat$str[i] >20){
+  total_math <- total_math + dat$math_scr[i]
+  }
+}
+big_math_avg <- total_math/big_class
+print(big_math_avg)
+```
+42.14% of disctricts have an average class size of more than 20 students. The mean math score across these districts is 650.08.
+
+c iv:  
+The fraction between part ii and part iii adds up to 1 (100%). The mean math score across all districts is the weighted average of each subsection's average. (fraction_small)(small_math_avg) + (fraction_big)(big_math_avg) = mean_math.
+
+c v:  
+Y = math score  
+X = indicator variable for small class (X=1 if small class, X=0 if big.)  
+Y = $\beta_0$ +$\beta_1$X + U  
+  
+H0: E[Y|X=1] = E[Y|X=0], class size has no effect on mean math score, or $\beta_1$ = 0  
+H1: E[Y|X=1] $\neq$ E[Y|X=0], class size has effect on math score, or $\beta_1$ $\neq$ 0
+
+Estimator:
+E[Y|X=0] = big_math_avg = 650.0819 = $\beta_0$  
+E[Y|X=1] = small_math_avg = 655.7177 = $\beta_0$ + $\beta_1$  
+```{r}
+beta1 <- small_math_avg - big_math_avg
+print(beta1)
+```
+So $\beta_1$ = 655.7177 - 650.0819 = 5.63577  
+
+```{r}
+#Test statistics:
+sd_x <- sd(dat$math_scr[dat$str <= 20])
+
+tn <- (beta1- 0)/sd_x
+print(tn)
+```
+Critical value of 10% level significance for two tailed test: $c_{(1-0.1/2)}$ = $c_{0.95}$ = 1.645  
+Since tn= 0.29 is less than the critical value, we fail to reject H0. This means that there's not enough evidence to prove that the class size have an impact on the math score. 
+
+c vi:
+```{r}
+cov_avginc_math <- cov(dat$avginc, dat$math_scr)
+print(cov_avginc_math)
+
+cov_inc_math <- cov(dat$income, dat$math_scr)
+print(cov_inc_math)
+```
+The covariances are different by a scale of 1000, which makes sense because the data of income is scaled by 1000 from the data of avginc. The scale makes the income data stretched and more spread out, therefore increasing its covariance with other variables by 1000x.
+
+
+c vii:  
+```{r}
+corr_avginc_math <- cor(dat$avginc, dat$math_scr)
+print(corr_avginc_math)
+
+corr_inc_math <- cor(dat$income, dat$math_scr)
+print(corr_inc_math)
+```
+The two correlations are the same, which makes sense because correlation is the adjusted value after dividing covariance by variance. The scale of 1000 cancels out, leaving only the magnitude and direction of how the variables move with each other.
